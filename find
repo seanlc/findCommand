@@ -5,7 +5,7 @@ typ=0
 print=0
 exe=0
 args=""
-path=/home/sean
+path=/home/sean/61b
 
 for f in $*
 do
@@ -17,6 +17,12 @@ do
     esac
     args=($f ${args[*]})
 done
+
+function get_path {
+    numArgs="${#args[@]}"
+    echo "size of args: $numArgs"
+    path="${args[$numArgs-1]}"
+}
 
 function set_nIndex {
     arrLen=${#args[@]}
@@ -77,20 +83,26 @@ function check_type {
 	fi 
     fi
 }
+function remove_wildcard {
+    cmpWrd=""
+    wrdLen=${#compWrd}
+    for ((i=0;i<wrdLen;++i));
+    do
+	char="${compWrd:$i:1}"
+	if [[ $char != '*'  ]]; then
+	    cmpWrd+=$char
+	fi
+    done
+}
 function get_fname {
     fname=$(basename $f)   
-    echo $fname 
 }
 function check_name {
     compWrd="${args[$nIndex - 1]}"
     if [[ "$compWrd" == *"*"* ]]; then
-	get_fname
-        #chop * from compword
-        echo "comparing $fname =~ $compWrd"
-	if [[ $fname =~ "$compWrd"  ]]; then
-	    echo "match found"
-	fi
+	echo "wildcard found"
     elif [[ "$name" == 1 && $f != "$path/$compWrd" ]]; then
+	echo "$f != $path/$compWrd"
 	continue
     fi
 
@@ -100,13 +112,11 @@ set_nIndex
 set_tIndex
 set_eIndex
 
-#index_test
 
 function search_dir {
     for f in "$path"/*
     do
-#        if [[ $name == 1 && $f != "$path/${args[nIndex-1]}" ]]; then
-#	    continue
+	get_fname
 	if [[ $name == 1 ]] ; then
 		check_name
 	elif [[ $typ == 1 ]]; then
@@ -115,8 +125,15 @@ function search_dir {
 	if [[ "$print" == 1 ]]; then
 	    echo $f
 	fi
+	if [[ -d $f  ]]; then
+	    origPath=$path
+	    path="$f"
+	    search_dir
+	    path=$origPath
+	
+	fi
     done
 }
 
-#print_args
+#get_path
 search_dir
