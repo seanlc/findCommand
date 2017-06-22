@@ -1,0 +1,122 @@
+#!/bin/bash
+
+name=0
+typ=0
+print=0
+exe=0
+args=""
+path=/home/sean
+
+for f in $*
+do
+    case $f in 
+	(-name) name=1;;
+	(-type) typ=1;;
+	(-print) print=1;;
+	(-exec) exe=1;;
+    esac
+    args=($f ${args[*]})
+done
+
+function set_nIndex {
+    arrLen=${#args[@]}
+    for ((i=0; i < arrLen; ++i));
+    do
+	if [[ "${args[$i]}" == "-name" ]]; then
+	    nIndex=$i
+	    break
+	fi
+    done
+}
+
+function set_tIndex {
+    arrLen=${#args[@]}
+    for ((i=0; i < arrLen; ++i));
+    do
+	if [[ "${args[$i]}" == "-type" ]]; then
+	    tIndex=$i
+	    break
+	fi
+    done
+}
+function set_eIndex {
+    arrLen=${#args[@]}
+    for ((i=0; i < arrLen; ++i));
+    do
+	if [[ "${args[$i]}" == "-exec" ]]; then
+	    eIndex=$i
+	    break
+	fi
+    done
+}
+function print_args {
+    echo "args array"
+    arrLen=${#args[@]}
+    for ((i=0; i < arrLen; ++i));
+    do
+	echo "${args[$i]}"
+    done
+}
+
+function index_test {
+    echo "index test"
+    echo "name $name index $nIndex with arg of ${args[$nIndex-1]}"
+    echo "type  $typ index $tIndex with arg of ${args[$tIndex-1]}"
+    echo "print $print"
+    echo "exe $exe index $eIndex"
+}
+
+function check_type {
+    if [[ "${args[tIndex-1]}" == "f"  ]]; then
+	if [[ ! -f $f ]]; then
+	    continue
+	fi
+    else
+	if [[ ! -d $f ]]; then
+	    continue
+	fi 
+    fi
+}
+function get_fname {
+    fname=$(basename $f)   
+    echo $fname 
+}
+function check_name {
+    compWrd="${args[$nIndex - 1]}"
+    if [[ "$compWrd" == *"*"* ]]; then
+	get_fname
+        #chop * from compword
+        echo "comparing $fname =~ $compWrd"
+	if [[ $fname =~ "$compWrd"  ]]; then
+	    echo "match found"
+	fi
+    elif [[ "$name" == 1 && $f != "$path/$compWrd" ]]; then
+	continue
+    fi
+
+}
+
+set_nIndex
+set_tIndex
+set_eIndex
+
+#index_test
+
+function search_dir {
+    for f in "$path"/*
+    do
+#        if [[ $name == 1 && $f != "$path/${args[nIndex-1]}" ]]; then
+#	    continue
+	if [[ $name == 1 ]] ; then
+		check_name
+	elif [[ $typ == 1 ]]; then
+		check_type
+	fi
+	if [[ "$print" == 1 ]]; then
+	    echo $f
+	fi
+    done
+}
+
+#print_args
+search_dir
