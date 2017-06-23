@@ -75,7 +75,7 @@ function index_test {
 function check_type {
     if [[ "${args[tIndex-1]}" == "f"  ]]; then
 	if [[ ! -f $f ]]; then
-	    continue
+	    echo ""	    
 	fi
     else
 	if [[ ! -d $f ]]; then
