@@ -12,7 +12,6 @@ do
     case $f in 
 	(-name) name=1;;
 	(-type) typ=1;;
-	(-print) print=1;;
 	(-exec) exe=1;;
     esac
     args=($f ${args[*]})
@@ -75,7 +74,7 @@ function index_test {
 function check_type {
     if [[ "${args[tIndex-1]}" == "f"  ]]; then
 	if [[ ! -f $f ]]; then
-	    echo ""	    
+	    print=0	    
 	fi
     else
 	if [[ ! -d $f ]]; then
@@ -116,6 +115,7 @@ set_eIndex
 function search_dir {
     for f in "$path"/*
     do
+	print=1
 	get_fname
 	if [[ $name == 1 ]] ; then
 		check_name
