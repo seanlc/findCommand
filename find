@@ -4,7 +4,7 @@ name=0
 typ=0
 exe=0
 args=""
-path=/home/sean/61b
+path=/home/sean
 
 for f in $*
 do
@@ -81,13 +81,25 @@ function check_name {
     elif [[ "$name" == 1 && $f != "$path/$compWrd" ]]; then
 	continue
     fi
-
 }
 
-set_nIndex
-set_tIndex
-set_eIndex
+function build_cmd_string {
+    cmdString=""
+    let "numArg=$eIndex-1"
+    for ((i=$numArg; i>=0; --i));
+    do
+        curArg="${args[$i]}"
+	if [[ $curArg == "{}"  ]]; then
+	    cmdString+="$f "
+	else
+	    cmdString+="$curArg "
+	fi
+    done
+}
 
+function get_path {
+    path="${args[${#args[@]} - 1]}" 
+}
 
 function search_dir {
     for f in "$path"/*
@@ -104,7 +116,8 @@ function search_dir {
 	    echo $f
 	fi
 	if [[ "$exe" == 1  ]]; then
-	    echo "exec cmd on $f"
+	    build_cmd_string
+	    eval "$cmdString"
 	fi
 	if [[ -d $f  ]]; then
 	    origPath=$path
@@ -115,6 +128,9 @@ function search_dir {
 	fi
     done
 }
-
-
+get_path
+set_nIndex
+set_tIndex
+set_eIndex
 search_dir
+#print_args
