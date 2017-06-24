@@ -16,12 +16,6 @@ do
     args=($f ${args[*]})
 done
 
-function get_path {
-    numArgs="${#args[@]}"
-    echo "size of args: $numArgs"
-    path="${args[$numArgs-1]}"
-}
-
 function set_nIndex {
     arrLen=${#args[@]}
     for ((i=0; i < arrLen; ++i));
@@ -43,6 +37,7 @@ function set_tIndex {
 	fi
     done
 }
+
 function set_eIndex {
     arrLen=${#args[@]}
     for ((i=0; i < arrLen; ++i));
@@ -53,6 +48,7 @@ function set_eIndex {
 	fi
     done
 }
+
 function print_args {
     echo "args array"
     arrLen=${#args[@]}
@@ -60,14 +56,6 @@ function print_args {
     do
 	echo "${args[$i]}"
     done
-}
-
-function index_test {
-    echo "index test"
-    echo "name $name index $nIndex with arg of ${args[$nIndex-1]}"
-    echo "type  $typ index $tIndex with arg of ${args[$tIndex-1]}"
-    echo "print $print"
-    echo "exe $exe index $eIndex"
 }
 
 function check_type {
@@ -81,26 +69,16 @@ function check_type {
 	fi 
     fi
 }
-function remove_wildcard {
-    cmpWrd=""
-    wrdLen=${#compWrd}
-    for ((i=0;i<wrdLen;++i));
-    do
-	char="${compWrd:$i:1}"
-	if [[ $char != '*'  ]]; then
-	    cmpWrd+=$char
-	fi
-    done
-}
+
 function get_fname {
     fname=$(basename $f)   
 }
+
 function check_name {
     compWrd="${args[$nIndex - 1]}"
     if [[ "$compWrd" == *"*"* ]]; then
 	echo "wildcard found"
     elif [[ "$name" == 1 && $f != "$path/$compWrd" ]]; then
-	echo "$f != $path/$compWrd"
 	continue
     fi
 
@@ -118,11 +96,15 @@ function search_dir {
 	get_fname
 	if [[ $name == 1 ]] ; then
 		check_name
-	elif [[ $typ == 1 ]]; then
+	fi
+	if [[ $typ == 1 ]]; then
 		check_type
 	fi
 	if [[ "$print" == 1 ]]; then
 	    echo $f
+	fi
+	if [[ "$exe" == 1  ]]; then
+	    echo "exec cmd on $f"
 	fi
 	if [[ -d $f  ]]; then
 	    origPath=$path
@@ -134,5 +116,5 @@ function search_dir {
     done
 }
 
-#get_path
+
 search_dir
